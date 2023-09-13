@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { truck } from './data.js';
 import './App.css';
+import { getFoodTruckList } from './service/api.js';
 let Bmap = window.BMapGL;
-let pushCarts = truck.filter(truck =>
-  truck.FacilityType === 'PushCart' && truck.Longitude !== '0' && truck.Latitude !== '0'
-);
+let pushCarts = [];
 
 export default class App extends Component {
   size = 13;
+
   componentDidMount() {
+    this.getFoodTrucks();
     //initialize Baidu Map
     this.map = new Bmap.Map("bmap");
     let point = {
@@ -18,6 +18,21 @@ export default class App extends Component {
       FacilityType: 'circle',
     };
     this.drawMap(point);
+  }
+
+  async getFoodTrucks(){
+    const {data, status} = await getFoodTruckList('foodtrucks/', 'get');
+    switch (status) {
+      case 200:
+        pushCarts = data;
+        break;
+      case 404:
+        alert('Page not found!');
+        break;
+      default:
+        alert("Server is down!")
+        break;
+    }
   }
 
   /**
